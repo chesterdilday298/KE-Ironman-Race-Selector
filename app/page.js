@@ -12,7 +12,7 @@ export default function IronmanRaceSelector() {
     distance: '', goal: '', swimStrength: '', bodyType: '', climate: ''
   });
 
-  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID'; // Replace with your Formspree ID
+  const FORMSPREE_ENDPOINT = https://formspree.io/f/xykzlvpo; // Replace with your Formspree ID
 
   const races = [
     // FULL DISTANCE (140.6)

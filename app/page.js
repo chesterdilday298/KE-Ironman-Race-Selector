@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
@@ -12,7 +12,7 @@ export default function IronmanRaceSelector() {
     distance: '', goal: '', swimStrength: '', bodyType: '', climate: ''
   });
 
-  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xykzlvpo'; // Replace with your Formspree ID
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xykzlvpo';
 
   const races = [
     // FULL DISTANCE (140.6)
@@ -40,44 +40,60 @@ export default function IronmanRaceSelector() {
   ];
 
   const validateEmail = (e) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(e).toLowerCase());
-  };
-
-  const handleNext = () => {
-    if (step === 1) {
-      if (!validateEmail(email)) {
-        setEmailError('Please enter a valid email address');
-        return;
-      }
-      setEmailError('');
-    }
-    setStep(step + 1);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e).toLowerCase());
   };
 
   const handleSelection = (field, value) => {
-    setSelections(prev => ({ ...prev, [field]: value }));
-    handleNext();
+    const updated = { ...selections, [field]: value };
+    setSelections(updated);
+    
+    // Auto-submit to Formspree on the very last selection
+    if (field === 'climate') {
+      fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        body: JSON.stringify({ email, ...updated }),
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
+      });
+    }
+    setStep(step + 1);
   };
 
   const getRankedRaces = () => {
     let filtered = races.filter(r => r.distance === selections.distance);
     return filtered.sort((a, b) => {
       let scoreA = 0, scoreB = 0;
+      
+      // Weak Swim Scoring (Preference for Downriver/Current)
       if (selections.swimStrength === 'Weak') {
         if (a.swim.includes("Downriver") || a.swim.includes("River")) scoreA += 10;
         if (b.swim.includes("Downriver") || b.swim.includes("River")) scoreB += 10;
       }
-      const matchTags = (race, list) => list.forEach(tag => { if (race.tags.includes(tag)) return 5; });
+      
+      // Goal Matching
       if (a.tags.includes(selections.goal)) scoreA += 5;
       if (b.tags.includes(selections.goal)) scoreB += 5;
+
+      // Body Type Matching
+      if (selections.bodyType === 'Power/Heavy' && a.tags.includes("Power")) scoreA += 5;
+      if (selections.bodyType === 'Power/Heavy' && b.tags.includes("Power")) scoreB += 5;
+      if (selections.bodyType === 'Climber/Light' && a.tags.includes("Climber")) scoreA += 5;
+      if (selections.bodyType === 'Climber/Light' && b.tags.includes("Climber")) scoreB += 5;
+
+      // Climate Matching
+      if (selections.climate === 'Heat Tolerance' && a.tags.includes("Heat-Seeker")) scoreA += 5;
+      if (selections.climate === 'Heat Tolerance' && b.tags.includes("Heat-Seeker")) scoreB += 5;
+      if (selections.climate === 'Cold/Moderate' && a.tags.includes("Cold-Weather")) scoreA += 5;
+      if (selections.climate === 'Cold/Moderate' && b.tags.includes("Cold-Weather")) scoreB += 5;
+
       return scoreB - scoreA;
     }).slice(0, 10);
   };
 
   const exportResults = () => {
-    const results = getRankedRaces().map((r, i) => `#${i + 1}: ${r.name}\n- Swim: ${r.swim}\n- Bike: ${r.bike}\n- Climate: ${r.climate}`).join('\n\n');
-    const blob = new Blob([`2026 RACE RECOMMENDATIONS FOR: ${email}\n\n${results}`], { type: 'text/plain' });
+    const resultsText = getRankedRaces().map((r, i) => 
+      `#${i + 1}: ${r.name}\n- Swim: ${r.swim}\n- Bike: ${r.bike}\n- Climate: ${r.climate}`
+    ).join('\n\n');
+    const blob = new Blob([`2026 RACE RECOMMENDATIONS FOR: ${email}\n\n${resultsText}`], { type: 'text/plain' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `Ironman_Race_Recommendations.txt`;
@@ -85,22 +101,36 @@ export default function IronmanRaceSelector() {
   };
 
   const colors = { primary: '#D62027', charcoal: '#231F20' };
-  const btnStyle = { display: 'block', width: '100%', padding: '15px', margin: '10px 0', backgroundColor: 'white', color: '#231F20', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' };
+  const btnStyle = { display: 'block', width: '100%', padding: '15px', margin: '10px 0', backgroundColor: 'white', color: '#231F20', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', transition: '0.2s' };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: colors.charcoal, color: 'white', fontFamily: 'Inter, sans-serif', padding: '40px 20px' }}>
       <Analytics />
       <SpeedInsights />
       <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
-        <h1 style={{ color: colors.primary, fontSize: '2.5rem', fontWeight: '900' }}>IRONMAN</h1>
-        <h2 style={{ letterSpacing: '4px', marginBottom: '40px' }}>RACE SELECTOR 2026</h2>
+        <h1 style={{ color: colors.primary, fontSize: '2.5rem', fontWeight: '900', margin: 0 }}>IRONMAN</h1>
+        <h2 style={{ letterSpacing: '4px', marginBottom: '40px', fontSize: '1rem' }}>RACE SELECTOR 2026</h2>
 
         {step === 1 && (
           <div>
-            <h3>Enter Your Email to Start</h3>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="athlete@example.com" style={{ width: '100%', padding: '15px', borderRadius: '8px', marginBottom: '10px', color: 'black' }} />
-            {emailError && <p style={{ color: colors.primary }}>{emailError}</p>}
-            <button onClick={handleNext} style={btnStyle}>Start Selection</button>
+            <h3 style={{ marginBottom: '20px' }}>Enter Your Email to Start</h3>
+            <input 
+              type="email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              placeholder="athlete@example.com" 
+              style={{ width: '100%', padding: '15px', borderRadius: '8px', marginBottom: '10px', color: 'black', border: 'none' }} 
+            />
+            {emailError && <p style={{ color: colors.primary, fontSize: '0.8rem' }}>{emailError}</p>}
+            <button 
+              onClick={() => {
+                if (validateEmail(email)) { setStep(2); setEmailError(''); }
+                else { setEmailError('Please enter a valid email address'); }
+              }} 
+              style={btnStyle}
+            >
+              Start Selection
+            </button>
           </div>
         )}
 
@@ -112,19 +142,63 @@ export default function IronmanRaceSelector() {
           </div>
         )}
 
-        {/* ... Steps for Goal, Swim, Body Type, Climate selection screens ... */}
-        {/* Step 6: Final Results with Export */}
+        {step === 3 && (
+          <div>
+            <h3>What is your primary goal?</h3>
+            {['First-Timer', 'PR', 'WC Qualifier', 'Redemption'].map(g => (
+              <button key={g} onClick={() => handleSelection('goal', g)} style={btnStyle}>{g}</button>
+            ))}
+          </div>
+        )}
+
+        {step === 4 && (
+          <div>
+            <h3>How is your swimming?</h3>
+            <button onClick={() => handleSelection('swimStrength', 'Weak')} style={btnStyle}>Weak (Prefer Downriver/Wetsuit)</button>
+            <button onClick={() => handleSelection('swimStrength', 'Strong')} style={btnStyle}>Strong (Can handle chop/non-wetsuit)</button>
+          </div>
+        )}
+
+        {step === 5 && (
+          <div>
+            <h3>Identify your body type / bike strength:</h3>
+            <button onClick={() => handleSelection('bodyType', 'Power/Heavy')} style={btnStyle}>Power Specialist (Flat courses)</button>
+            <button onClick={() => handleSelection('bodyType', 'Climber/Light')} style={btnStyle}>Climbing Specialist (Hilly courses)</button>
+          </div>
+        )}
+
         {step === 6 && (
+          <div>
+            <h3>How do you handle heat?</h3>
+            <button onClick={() => handleSelection('climate', 'Heat Tolerance')} style={btnStyle}>I thrive in heat/humidity</button>
+            <button onClick={() => handleSelection('climate', 'Cold/Moderate')} style={btnStyle}>I prefer cold/moderate temps</button>
+          </div>
+        )}
+
+        {step === 7 && (
           <div style={{ textAlign: 'left' }}>
-            <h3 style={{ textAlign: 'center', color: colors.primary }}>Top 10 Race Recommendations</h3>
+            <h3 style={{ textAlign: 'center', color: colors.primary, marginBottom: '20px' }}>Your 2026 Race Recommendations</h3>
             {getRankedRaces().map((race, index) => (
               <div key={race.name} style={{ backgroundColor: 'white', color: colors.charcoal, padding: '15px', borderRadius: '12px', marginBottom: '10px' }}>
-                <strong>#{index + 1}: {race.name}</strong><br/>
-                <span style={{ fontSize: '0.8rem' }}>{race.swim} Swim | {race.bike} Bike | {race.climate}</span>
+                <div style={{ fontWeight: '900' }}>#{index + 1}: {race.name}</div>
+                <div style={{ fontSize: '0.8rem', marginTop: '5px' }}>
+                  <strong>Swim:</strong> {race.swim}<br/>
+                  <strong>Bike:</strong> {race.bike} | <strong>Climate:</strong> {race.climate}
+                </div>
               </div>
             ))}
-            <button onClick={() => setStep(1)} style={btnStyle}>Start Over</button>
-            <button onClick={exportResults} style={{ ...btnStyle, backgroundColor: colors.primary, color: 'white' }}>Export to Text File (.txt)</button>
+            <button 
+              onClick={() => { setStep(1); setEmail(''); setSelections({ distance: '', goal: '', swimStrength: '', bodyType: '', climate: '' }); }} 
+              style={{ ...btnStyle, marginTop: '20px' }}
+            >
+              Start Over
+            </button>
+            <button 
+              onClick={exportResults} 
+              style={{ ...btnStyle, backgroundColor: colors.primary, color: 'white' }}
+            >
+              Export to Text File (.txt)
+            </button>
           </div>
         )}
       </div>

@@ -21,10 +21,10 @@ export default function IronmanRaceSelector() {
     { name: "IRONMAN Maryland", distance: "140.6", wetsuit: "Probable", bike: "Flat", run: "Flat", climate: "Moderate", tags: ["Power", "PR"] },
     { name: "IRONMAN Florida", distance: "140.6", wetsuit: "Maybe", bike: "Flat", run: "Flat", climate: "Moderate", tags: ["Power", "PR"] },
     { name: "IRONMAN Chattanooga", distance: "140.6", wetsuit: "Maybe", bike: "Rolling", run: "Hilly", climate: "Heat/Humidity", tags: ["Downriver", "Weak-Swim", "Redemption"] },
-    { name: "IRONMAN Lake Placid", distance: "140.6", wetsuit: "Probable", bike: "Hilly", run: "Hilly", climate: "Moderate", tags: ["Climber", "WC Qualifier"] },
+    { name: "IRONMAN Lake Placid", distance: "140.6", wetsuit: "Probable", bike: "Hilly", run: "Hilly", climate: "Moderate", tags: ["Climber", "WC"] },
     { name: "IRONMAN Wisconsin", distance: "140.6", wetsuit: "Probable", bike: "Hilly", run: "Hilly", climate: "Moderate", tags: ["Climber", "Redemption"] },
     { name: "IRONMAN Texas", distance: "140.6", wetsuit: "Doubtful", bike: "Flat", run: "Flat", climate: "Heat/Humidity", tags: ["Power", "PR"] },
-    { name: "IRONMAN Canada (Ottawa)", distance: "140.6", wetsuit: "Probable", bike: "Rolling", run: "Flat", climate: "Moderate", tags: ["First-Timer", "WC Qualifier"] },
+    { name: "IRONMAN Canada (Ottawa)", distance: "140.6", wetsuit: "Probable", bike: "Rolling", run: "Flat", climate: "Moderate", tags: ["First-Timer", "WC"] },
 
     // HALF DISTANCE (70.3)
     { name: "70.3 Oregon", distance: "70.3", wetsuit: "Probable", bike: "Rolling", run: "Flat", climate: "Moderate", tags: ["Downriver", "Weak-Swim", "PR", "First-Timer"] },
@@ -32,8 +32,8 @@ export default function IronmanRaceSelector() {
     { name: "70.3 Chattanooga", distance: "70.3", wetsuit: "Probable", bike: "Rolling", run: "Rolling", climate: "Moderate/Humid", tags: ["Downriver", "Weak-Swim"] },
     { name: "70.3 North Carolina", distance: "70.3", wetsuit: "Probable", bike: "Flat", run: "Flat", climate: "Moderate", tags: ["Downriver", "Weak-Swim", "PR"] },
     { name: "70.3 Augusta", distance: "70.3", wetsuit: "Doubtful", bike: "Flat", run: "Flat", climate: "Heat/Humidity", tags: ["Downriver", "Weak-Swim"] },
-    { name: "70.3 St. George", distance: "70.3", wetsuit: "Probable", bike: "Hilly", run: "Hilly", climate: "Moderate", tags: ["Climber", "WC Qualifier"] },
-    { name: "70.3 Mont-Tremblant", distance: "70.3", wetsuit: "Probable", bike: "Hilly", run: "Rolling", climate: "Moderate", tags: ["Climber", "WC Qualifier"] },
+    { name: "70.3 St. George", distance: "70.3", wetsuit: "Probable", bike: "Hilly", run: "Hilly", climate: "Moderate", tags: ["Climber", "WC"] },
+    { name: "70.3 Mont-Tremblant", distance: "70.3", wetsuit: "Probable", bike: "Hilly", run: "Rolling", climate: "Moderate", tags: ["Climber", "WC"] },
     { name: "70.3 Oceanside", distance: "70.3", wetsuit: "Probable", bike: "Hilly", run: "Flat", climate: "Moderate", tags: ["Climber"] },
     { name: "70.3 Eagleman", distance: "70.3", wetsuit: "Maybe", bike: "Flat", run: "Flat", climate: "Heat/Humidity", tags: ["PR", "Power"] },
     { name: "70.3 Gulf Coast", distance: "70.3", wetsuit: "Maybe", bike: "Flat", run: "Flat", climate: "Heat/Humidity", tags: ["PR", "Power"] }
@@ -58,7 +58,7 @@ export default function IronmanRaceSelector() {
       const calcScore = (race) => {
         let s = 0;
 
-        // SWIM SCORING (BASED ON YOUR SUGGESTED POINTS)
+        // SWIM SCORING (BASED ON YOUR EXACT POINT MATRIX)
         const isDownriver = race.tags.includes("Downriver");
         if (selections.swimStrength === 'Weak') {
           if (race.wetsuit === "Probable" && isDownriver) s += 20;
@@ -68,8 +68,8 @@ export default function IronmanRaceSelector() {
           else if (race.wetsuit === "Doubtful" && isDownriver) s -= 5;
           else if (race.wetsuit === "Doubtful" && !isDownriver) s -= 50;
         } else if (selections.swimStrength === 'Strong') {
-          if (race.wetsuit === "Doubtful") s += 20; // Strong swimmers gain time on field in hard conditions
-          if (isDownriver) s -= 10; // Neutralize the current assist
+          if (race.wetsuit === "Doubtful") s += 20;
+          if (isDownriver) s -= 15;
         }
 
         // BIKE SCORING
@@ -77,29 +77,19 @@ export default function IronmanRaceSelector() {
         else if (selections.bikeTerrain === 'Hilly' && race.bike === 'Flat') s -= 30;
         else if (selections.bikeTerrain === 'Flat' && race.bike === 'Hilly') s -= 40;
 
-        // RUN SCORING (THE BARTON AVE CLAUSE)
+        // RUN SCORING
         if (selections.runTerrain === race.run) s += 25;
-        else if (selections.runTerrain === 'Hilly' && race.run === 'Flat') s -= 20;
         else if (selections.runTerrain === 'Flat' && race.run === 'Hilly') s -= 45;
 
-        // CLIMATE
-        if (selections.climate === 'Cold/Moderate' && race.climate.includes('Moderate')) s += 15;
+        // CLIMATE & GOAL
         if (selections.climate === 'Heat/Humidity' && race.climate.includes('Heat')) s += 15;
-        if (selections.climate === 'Cold/Moderate' && race.climate.includes('Heat')) s -= 20;
+        if (selections.climate === 'Cold/Moderate' && race.climate.includes('Moderate')) s += 15;
+        if (race.tags.includes(selections.goal)) s += 10;
 
         return s;
       };
       return calcScore(b) - calcScore(a);
     }).slice(0, 10);
-  };
-
-  const exportResults = () => {
-    const data = getRankedRaces().map((r, i) => `#${i+1}: ${r.name}\n- Wetsuit: ${r.wetsuit}\n- Bike: ${r.bike}\n- Run: ${r.run}\n- Climate: ${r.climate}`).join('\n\n');
-    const blob = new Blob([`2026 RACE REPORT FOR: ${email}\n\n${data}`], { type: 'text/plain' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `My_Ironman_Selection.txt`;
-    link.click();
   };
 
   const btnStyle = { display: 'block', width: '100%', padding: '15px', margin: '10px 0', backgroundColor: 'white', color: '#231F20', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' };
@@ -154,9 +144,9 @@ export default function IronmanRaceSelector() {
         {step === 5 && (
           <div>
             <h3>Bike Terrain</h3>
-            <button onClick={() => handleSelection('bikeTerrain', 'Flat')} style={btnStyle}>Flat and Fast (Power)</button>
-            <button onClick={() => handleSelection('bikeTerrain', 'Rolling')} style={btnStyle}>Gently Rolling</button>
-            <button onClick={() => handleSelection('bikeTerrain', 'Hilly')} style={btnStyle}>Hilly (Climbing)</button>
+            <button onClick={() => handleSelection('bikeTerrain', 'Flat')} style={btnStyle}>Flat and Fast (Aero rewarded)</button>
+            <button onClick={() => handleSelection('bikeTerrain', 'Rolling')} style={btnStyle}>Gently Rolling (Mix of Aero and Hoods)</button>
+            <button onClick={() => handleSelection('bikeTerrain', 'Hilly')} style={btnStyle}>Hilly (Climbing Specialist)</button>
             <button onClick={() => setStep(step - 1)} style={backBtnStyle}>Back</button>
           </div>
         )}
@@ -166,7 +156,7 @@ export default function IronmanRaceSelector() {
             <h3>Run Terrain</h3>
             <button onClick={() => handleSelection('runTerrain', 'Flat')} style={btnStyle}>Flat and Fast</button>
             <button onClick={() => handleSelection('runTerrain', 'Rolling')} style={btnStyle}>Rolling Hills</button>
-            <button onClick={() => handleSelection('runTerrain', 'Hilly')} style={btnStyle}>Hilly / Brutal (Strength)</button>
+            <button onClick={() => handleSelection('runTerrain', 'Hilly')} style={btnStyle}>Hilly / Brutal (Strength focus)</button>
             <button onClick={() => setStep(step - 1)} style={backBtnStyle}>Back</button>
           </div>
         )}
@@ -190,7 +180,6 @@ export default function IronmanRaceSelector() {
               </div>
             ))}
             <button onClick={() => setStep(1)} style={btnStyle}>Start Over</button>
-            <button onClick={exportResults} style={{ ...btnStyle, backgroundColor: '#D62027', color: 'white' }}>Export Selections (.txt)</button>
           </div>
         )}
       </div>

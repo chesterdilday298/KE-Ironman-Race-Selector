@@ -95,7 +95,7 @@ export default function IronmanRaceSelector() {
   };
 
   const exportResults = () => {
-    const data = getRankedRaces().map((r, i) => `#${i+1}: ${r.name}\n- Date: ${r.date}\n- Swim: ${r.water} (${r.wetsuit})\n- Bike: ${r.bike}\n- Run: ${r.run}`).join('\n\n');
+    const data = getRankedRaces().map((r, i) => `#${i+1}: ${r.name}\n- Date: ${r.date}\n- Swim: ${r.water} (Wetsuit ${r.wetsuit})\n- Bike: ${r.bike}\n- Run: ${r.run}`).join('\n\n');
     const blob = new Blob([`2026 RANKED RACE REPORT FOR: ${email}\n\n${data}`], { type: 'text/plain' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -110,6 +110,12 @@ export default function IronmanRaceSelector() {
     </div>
   );
 
+  const ProgressBar = () => (
+    <div style={{ width: '100%', backgroundColor: '#444', height: '8px', borderRadius: '4px', marginBottom: '30px', overflow: 'hidden' }}>
+      <div style={{ width: `${(step / TOTAL_STEPS) * 100}%`, backgroundColor: '#D62027', height: '100%', transition: 'width 0.3s ease' }}></div>
+    </div>
+  );
+
   const btnStyle = { display: 'block', width: '100%', padding: '15px', margin: '10px 0', backgroundColor: 'white', color: '#231F20', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', textAlign: 'center', textDecoration: 'none' };
   const backBtnStyle = { ...btnStyle, backgroundColor: 'transparent', color: 'white', border: '1px solid white', marginTop: '10px' };
 
@@ -117,8 +123,10 @@ export default function IronmanRaceSelector() {
     <div style={{ minHeight: '100vh', backgroundColor: '#231F20', color: 'white', fontFamily: 'Inter, sans-serif', padding: '40px 20px' }}>
       <Analytics /><SpeedInsights />
       <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
-        <h1 style={{ color: '#D62027', fontSize: '2.5rem', fontWeight: '900' }}>IRONMAN</h1>
-        <h2 style={{ letterSpacing: '4px', marginBottom: '40px' }}>RACE SELECTOR 2026</h2>
+        <h1 style={{ color: '#D62027', fontSize: '2.5rem', fontWeight: '900', marginBottom: '5px' }}>IRONMAN</h1>
+        <h2 style={{ letterSpacing: '4px', marginBottom: '20px', fontSize: '0.9rem' }}>RACE SELECTOR 2026</h2>
+        
+        {step < TOTAL_STEPS && <ProgressBar />}
 
         {step === 1 && (
           <div>
@@ -136,6 +144,7 @@ export default function IronmanRaceSelector() {
             <h3>Distance Selection</h3>
             <button onClick={() => handleSelection('distance', '70.3')} style={btnStyle}>70.3 (Half)</button>
             <button onClick={() => handleSelection('distance', '140.6')} style={btnStyle}>140.6 (Full)</button>
+            <button onClick={() => setStep(1)} style={backBtnStyle}>Back</button>
           </div>
         )}
 
@@ -145,6 +154,7 @@ export default function IronmanRaceSelector() {
             <button onClick={() => handleSelection('swimType', 'Weak')} style={btnStyle}>Weak (Wetsuit + Current Preferred)</button>
             <button onClick={() => handleSelection('swimType', 'Intermediate')} style={btnStyle}>Intermediate (Wetsuit/Current Optional)</button>
             <button onClick={() => handleSelection('swimType', 'Strong')} style={btnStyle}>Strong (No Wetsuit/Current Preferred)</button>
+            <button onClick={() => setStep(2)} style={backBtnStyle}>Back</button>
           </div>
         )}
 
@@ -152,77 +162,4 @@ export default function IronmanRaceSelector() {
           <div>
             <h3>Primary Goal</h3>
             {['First-Timer', 'Step-Up', 'Redemption', 'PR', 'WC'].map(g => (
-              <button key={g} onClick={() => handleSelection('goal', g)} style={btnStyle}>{g}</button>
-            ))}
-          </div>
-        )}
-
-        {step === 5 && (
-          <div>
-            <h3>Bike Terrain Preference</h3>
-            <button onClick={() => handleSelection('bikeTerrain', 'Flat')} style={btnStyle}>Flat and Fast (Aero rewarded)</button>
-            <button onClick={() => handleSelection('bikeTerrain', 'Rolling')} style={btnStyle}>Gently Rolling</button>
-            <button onClick={() => handleSelection('bikeTerrain', 'Hilly')} style={btnStyle}>Hilly (Climbing)</button>
-          </div>
-        )}
-
-        {step === 6 && (
-          <div>
-            <h3>Run Terrain Preference</h3>
-            <button onClick={() => handleSelection('runTerrain', 'Flat')} style={btnStyle}>Flat and Fast</button>
-            <button onClick={() => handleSelection('runTerrain', 'Rolling')} style={btnStyle}>Rolling Hills</button>
-            <button onClick={() => handleSelection('runTerrain', 'Hilly')} style={btnStyle}>Hilly / Brutal</button>
-          </div>
-        )}
-
-        {step === 7 && (
-          <div>
-            <h3>Climate</h3>
-            <button onClick={() => handleSelection('climate', 'Heat/Humidity')} style={btnStyle}>Heat/Humidity</button>
-            <button onClick={() => handleSelection('climate', 'Cold/Moderate')} style={btnStyle}>Cold/Moderate</button>
-          </div>
-        )}
-
-        {step === 8 && (
-          <div style={{ textAlign: 'left' }}>
-            <h2 style={{ color: '#D62027', textAlign: 'center', marginBottom: '20px' }}>Your Ranked 2026 Races</h2>
-            {getRankedRaces().map((race, index) => (
-              <div key={race.name} style={{ backgroundColor: 'white', color: '#231F20', padding: '15px', borderRadius: '12px', marginBottom: '10px' }}>
-                <strong>#{index + 1}: {race.name}</strong><br/>
-                <small>{race.date} | Swim: {race.water} ({race.wetsuit}) | Bike: {race.bike} | Run: {race.run}</small>
-              </div>
-            ))}
-            
-            <div style={{ backgroundColor: '#D62027', color: 'white', padding: '20px', borderRadius: '12px', marginTop: '30px', textAlign: 'center' }}>
-              <h4 style={{ margin: '0 0 10px 0', textTransform: 'uppercase' }}>The Keystone Rule</h4>
-              <p style={{ margin: '0', fontSize: '1.1rem', fontWeight: 'bold' }}>Restraint early. Discipline in the middle. Execution late.</p>
-              <p style={{ margin: '10px 0 0 0', fontSize: '0.8rem', opacity: '0.9' }}>Most athletes reverse that order — and that's why they plateau.</p>
-            </div>
-
-            <div style={{ backgroundColor: '#D62027', color: 'white', padding: '20px', borderRadius: '12px', marginTop: '20px' }}>
-              <h4 style={{ textAlign: 'center', margin: '0 0 15px 0' }}>WANT PERSONALIZED 1:1 COACHING?</h4>
-              <p style={{ fontSize: '0.8rem', marginBottom: '15px' }}>This tool provides general guidance. For a truly personalized race strategy tailored to YOUR specific needs, goals, and race-day conditions, consider 1:1 coaching with Keystone Endurance.</p>
-              <ul style={{ fontSize: '0.8rem', paddingLeft: '20px' }}>
-                <li>Custom training plans for swim, bike, run, and strength</li>
-                <li>Personalized race-day execution strategies</li>
-                <li>Unlimited communication and bi-weekly coaching calls</li>
-                <li>Access to metabolic assessments and video form analysis</li>
-              </ul>
-              <a 
-                href={`mailto:coach@keystoneendurance.com?subject=Request for Coaching Review - 2026 Race Selector&body=Athlete Email: ${email}`}
-                style={{ ...btnStyle, backgroundColor: 'white', color: '#D62027', marginTop: '15px' }}
-              >
-                Click here to email Coach Chet to review
-              </a>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '20px' }}>
-              <button onClick={() => setStep(1)} style={btnStyle}>Start Over</button>
-              <button onClick={exportResults} style={{ ...btnStyle, backgroundColor: '#D62027', color: 'white' }}>Export to Text File</button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+              <button key={g} onClick={() => handleSelection('goal', g)} style={btnStyle}>{g

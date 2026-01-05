@@ -9,28 +9,28 @@ export default function IronmanRaceSelector() {
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const [selections, setSelections] = useState({
-    distance: '', goal: '', swimStrength: '', bikeTerrain: '', runTerrain: '', climate: ''
+    distance: '', goal: '', 
+    swimStrength: 5, bikeStrength: 5, runStrength: 5,
+    bikeTerrain: '', runTerrain: '', climate: ''
   });
 
   const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xykzlvpo';
 
   const races = [
-    // FULL DISTANCE (140.6)
-    { name: "IRONMAN California", distance: "140.6", wetsuit: "Probable", bike: "Flat", run: "Flat", climate: "Moderate", tags: ["Downriver", "Weak-Swim", "PR", "First-Timer"] },
-    { name: "IRONMAN Jacksonville (IMJAX)", distance: "140.6", wetsuit: "Probable", bike: "Flat", run: "Rolling", climate: "Moderate", tags: ["Downriver", "Weak-Swim", "First-Timer"] },
+    { name: "IRONMAN California", distance: "140.6", wetsuit: "Probable", bike: "Flat", run: "Flat", climate: "Moderate", tags: ["Downriver", "PR", "First-Timer"] },
+    { name: "IRONMAN Jacksonville (IMJAX)", distance: "140.6", wetsuit: "Probable", bike: "Flat", run: "Rolling", climate: "Moderate", tags: ["Downriver", "First-Timer"] },
     { name: "IRONMAN Maryland", distance: "140.6", wetsuit: "Probable", bike: "Flat", run: "Flat", climate: "Moderate", tags: ["Power", "PR"] },
     { name: "IRONMAN Florida", distance: "140.6", wetsuit: "Maybe", bike: "Flat", run: "Flat", climate: "Moderate", tags: ["Power", "PR"] },
-    { name: "IRONMAN Chattanooga", distance: "140.6", wetsuit: "Maybe", bike: "Rolling", run: "Hilly", climate: "Heat/Humidity", tags: ["Downriver", "Weak-Swim", "Redemption"] },
+    { name: "IRONMAN Chattanooga", distance: "140.6", wetsuit: "Maybe", bike: "Rolling", run: "Hilly", climate: "Heat/Humidity", tags: ["Downriver", "Redemption"] },
     { name: "IRONMAN Lake Placid", distance: "140.6", wetsuit: "Probable", bike: "Hilly", run: "Hilly", climate: "Moderate", tags: ["Climber", "WC"] },
     { name: "IRONMAN Wisconsin", distance: "140.6", wetsuit: "Probable", bike: "Hilly", run: "Hilly", climate: "Moderate", tags: ["Climber", "Redemption"] },
     { name: "IRONMAN Texas", distance: "140.6", wetsuit: "Doubtful", bike: "Flat", run: "Flat", climate: "Heat/Humidity", tags: ["Power", "PR"] },
-
-    // HALF DISTANCE (70.3)
-    { name: "70.3 Oregon", distance: "70.3", wetsuit: "Probable", bike: "Rolling", run: "Flat", climate: "Moderate", tags: ["Downriver", "Weak-Swim", "PR", "First-Timer"] },
-    { name: "70.3 Maine", distance: "70.3", wetsuit: "Probable", bike: "Hilly", run: "Rolling", climate: "Cold/Moderate", tags: ["Downriver", "Weak-Swim", "Climber"] },
-    { name: "70.3 Chattanooga", distance: "70.3", wetsuit: "Probable", bike: "Rolling", run: "Rolling", climate: "Moderate/Humid", tags: ["Downriver", "Weak-Swim"] },
-    { name: "70.3 North Carolina", distance: "70.3", wetsuit: "Probable", bike: "Flat", run: "Flat", climate: "Moderate", tags: ["Downriver", "Weak-Swim", "PR"] },
-    { name: "70.3 Augusta", distance: "70.3", wetsuit: "Doubtful", bike: "Flat", run: "Flat", climate: "Heat/Humidity", tags: ["Downriver", "Weak-Swim"] },
+    { name: "IRONMAN Canada (Ottawa)", distance: "140.6", wetsuit: "Probable", bike: "Rolling", run: "Flat", climate: "Moderate", tags: ["First-Timer", "WC"] },
+    { name: "70.3 Oregon", distance: "70.3", wetsuit: "Probable", bike: "Rolling", run: "Flat", climate: "Moderate", tags: ["Downriver", "PR", "First-Timer"] },
+    { name: "70.3 Maine", distance: "70.3", wetsuit: "Probable", bike: "Hilly", run: "Rolling", climate: "Cold/Moderate", tags: ["Downriver", "Climber"] },
+    { name: "70.3 Chattanooga", distance: "70.3", wetsuit: "Probable", bike: "Rolling", run: "Rolling", climate: "Moderate/Humid", tags: ["Downriver"] },
+    { name: "70.3 North Carolina", distance: "70.3", wetsuit: "Probable", bike: "Flat", run: "Flat", climate: "Moderate", tags: ["Downriver", "PR"] },
+    { name: "70.3 Augusta", distance: "70.3", wetsuit: "Doubtful", bike: "Flat", run: "Flat", climate: "Heat/Humidity", tags: ["Downriver"] },
     { name: "70.3 St. George", distance: "70.3", wetsuit: "Probable", bike: "Hilly", run: "Hilly", climate: "Moderate", tags: ["Climber", "WC"] },
     { name: "70.3 Mont-Tremblant", distance: "70.3", wetsuit: "Probable", bike: "Hilly", run: "Rolling", climate: "Moderate", tags: ["Climber", "WC"] },
     { name: "70.3 Oceanside", distance: "70.3", wetsuit: "Probable", bike: "Hilly", run: "Flat", climate: "Moderate", tags: ["Climber"] },
@@ -56,39 +56,54 @@ export default function IronmanRaceSelector() {
     return filtered.sort((a, b) => {
       const calcScore = (race) => {
         let s = 0;
-
-        // SWIM SCORING (STRICT POINT MATRIX)
         const isDownriver = race.tags.includes("Downriver");
-        if (selections.swimStrength === 'Weak') {
-          if (race.wetsuit === "Probable" && isDownriver) s += 20;
-          else if (race.wetsuit === "Probable" && !isDownriver) s += 15;
-          else if (race.wetsuit === "Maybe" && isDownriver) s += 10;
-          else if (race.wetsuit === "Maybe" && !isDownriver) s += 0;
-          else if (race.wetsuit === "Doubtful" && isDownriver) s -= 5;
-          else if (race.wetsuit === "Doubtful" && !isDownriver) s -= 50;
-        }
 
-        // BIKE TERRAIN (SOFTENED PENALTIES FOR ROLLING)
-        if (selections.bikeTerrain === race.bike) s += 20; // Exact Match
-        else if (selections.bikeTerrain === 'Flat' && race.bike === 'Rolling') s -= 5; // Low penalty for slight mismatch
-        else if (selections.bikeTerrain === 'Flat' && race.bike === 'Hilly') s -= 40; // High penalty for extreme mismatch
-        else if (selections.bikeTerrain === 'Rolling' && (race.bike === 'Flat' || race.bike === 'Hilly')) s += 5; // Rolling athletes handle both well
+        // --- SWIM SCORING WITH MULTIPLIER ---
+        // Multiplier: 1/10 strength = 2.0x penalty, 5/10 = 1.0x, 10/10 = 0.5x
+        const swimMultiplier = Math.max(0.5, 1 + (5 - selections.swimStrength) * 0.2);
+        
+        if (race.wetsuit === "Probable" && isDownriver) s += 20;
+        else if (race.wetsuit === "Probable" && !isDownriver) s += 15;
+        else if (race.wetsuit === "Maybe" && isDownriver) s += 10;
+        else if (race.wetsuit === "Doubtful" && !isDownriver) s -= (50 * swimMultiplier);
+        else if (race.wetsuit === "Doubtful" && isDownriver) s -= (10 * swimMultiplier);
 
-        // RUN TERRAIN (SOFTENED PENALTIES FOR ROLLING)
+        // --- BIKE SCORING WITH MULTIPLIER ---
+        // If athlete is a 10, hilly penalty (-40) becomes -10. If they are a 1, it becomes -70.
+        const bikeDifficultyImpact = Math.max(0.2, 1 + (5 - selections.bikeStrength) * 0.15);
+        if (selections.bikeTerrain === race.bike) s += 20;
+        else if (selections.bikeTerrain === 'Flat' && race.bike === 'Hilly') s -= (40 * bikeDifficultyImpact);
+        else if (selections.bikeTerrain === 'Flat' && race.bike === 'Rolling') s -= (5 * bikeDifficultyImpact);
+
+        // --- RUN SCORING WITH MULTIPLIER ---
+        const runDifficultyImpact = Math.max(0.2, 1 + (5 - selections.runStrength) * 0.15);
         if (selections.runTerrain === race.run) s += 25;
-        else if (selections.runTerrain === 'Flat' && race.run === 'Rolling') s -= 5;
-        else if (selections.runTerrain === 'Flat' && race.run === 'Hilly') s -= 45;
+        else if (selections.runTerrain === 'Flat' && race.run === 'Hilly') s -= (45 * runDifficultyImpact);
 
-        // CLIMATE & GOAL
+        // --- CLIMATE & GOAL ---
         if (selections.climate === 'Heat/Humidity' && race.climate.includes('Heat')) s += 15;
         if (selections.climate === 'Cold/Moderate' && race.climate.includes('Moderate')) s += 15;
-        if (race.tags.includes(selections.goal)) s += 15; // Increased weight for WC/Goal profile
+        if (race.tags.includes(selections.goal)) s += 15;
 
         return s;
       };
       return calcScore(b) - calcScore(a);
     }).slice(0, 10);
   };
+
+  const RenderSlider = ({ label, value, field }) => (
+    <div style={{ marginBottom: '25px' }}>
+      <label style={{ display: 'block', marginBottom: '10px', fontWeight: '700' }}>{label}: {value}/10</label>
+      <input 
+        type="range" min="1" max="10" value={value} 
+        onChange={(e) => setSelections({...selections, [field]: parseInt(e.target.value)})}
+        style={{ width: '100%', accentColor: '#D62027' }}
+      />
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', marginTop: '5px' }}>
+        <span>Weak</span><span>Elite</span>
+      </div>
+    </div>
+  );
 
   const btnStyle = { display: 'block', width: '100%', padding: '15px', margin: '10px 0', backgroundColor: 'white', color: '#231F20', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' };
   const backBtnStyle = { display: 'block', width: '100%', padding: '10px', marginTop: '20px', backgroundColor: 'transparent', color: 'white', border: '1px solid white', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem' };
@@ -102,9 +117,12 @@ export default function IronmanRaceSelector() {
 
         {step === 1 && (
           <div>
-            <h3>Enter Your Email to Start</h3>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="athlete@example.com" style={{ width: '100%', padding: '15px', borderRadius: '8px', marginBottom: '10px', color: 'black', border: 'none' }} />
-            <button onClick={() => setStep(2)} style={btnStyle}>Begin</button>
+            <h3>Athlete Profile</h3>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter Email" style={{ width: '100%', padding: '15px', borderRadius: '8px', marginBottom: '20px', color: 'black' }} />
+            <RenderSlider label="Swim Strength" value={selections.swimStrength} field="swimStrength" />
+            <RenderSlider label="Bike Strength" value={selections.bikeStrength} field="bikeStrength" />
+            <RenderSlider label="Run Strength" value={selections.runStrength} field="runStrength" />
+            <button onClick={() => setStep(2)} style={btnStyle}>Next: Selection Criteria</button>
           </div>
         )}
 
@@ -113,71 +131,59 @@ export default function IronmanRaceSelector() {
             <h3>Distance</h3>
             <button onClick={() => handleSelection('distance', '70.3')} style={btnStyle}>70.3 (Half)</button>
             <button onClick={() => handleSelection('distance', '140.6')} style={btnStyle}>140.6 (Full)</button>
-            <button onClick={() => setStep(step - 1)} style={backBtnStyle}>Back</button>
+            <button onClick={() => setStep(1)} style={backBtnStyle}>Back</button>
           </div>
         )}
 
         {step === 3 && (
           <div>
             <h3>Goal Profile</h3>
-            <button onClick={() => handleSelection('goal', 'First-Timer')} style={btnStyle}>First-Timer / Just Finish</button>
-            <button onClick={() => handleSelection('goal', 'Step-Up')} style={btnStyle}>Experience with Sprint/Olympic Stepping Up</button>
-            <button onClick={() => handleSelection('goal', 'Redemption')} style={btnStyle}>Redemption (Past DNF'd)</button>
-            <button onClick={() => handleSelection('goal', 'PR')} style={btnStyle}>Personal Best (PR)</button>
-            <button onClick={() => handleSelection('goal', 'WC')} style={btnStyle}>World Championship Qualifier</button>
-            <button onClick={() => setStep(step - 1)} style={backBtnStyle}>Back</button>
+            {['First-Timer', 'Step-Up', 'Redemption', 'PR', 'WC'].map(g => (
+              <button key={g} onClick={() => handleSelection('goal', g)} style={btnStyle}>{g}</button>
+            ))}
+            <button onClick={() => setStep(2)} style={backBtnStyle}>Back</button>
           </div>
         )}
 
         {step === 4 && (
           <div>
-            <h3>Swim Strength</h3>
-            <button onClick={() => handleSelection('swimStrength', 'Weak')} style={btnStyle}>Weak (Wetsuit + Current Preferred)</button>
-            <button onClick={() => handleSelection('swimStrength', 'Intermediate')} style={btnStyle}>Intermediate (Wetsuit/Current Optional)</button>
-            <button onClick={() => handleSelection('swimStrength', 'Strong')} style={btnStyle}>Strong (Prefer No Wetsuit or Current)</button>
-            <button onClick={() => setStep(step - 1)} style={backBtnStyle}>Back</button>
+            <h3>Bike Terrain Preference</h3>
+            <button onClick={() => handleSelection('bikeTerrain', 'Flat')} style={btnStyle}>Flat and Fast (Aero)</button>
+            <button onClick={() => handleSelection('bikeTerrain', 'Rolling')} style={btnStyle}>Gently Rolling</button>
+            <button onClick={() => handleSelection('bikeTerrain', 'Hilly')} style={btnStyle}>Hilly (Climbing)</button>
+            <button onClick={() => setStep(3)} style={backBtnStyle}>Back</button>
           </div>
         )}
 
         {step === 5 && (
           <div>
-            <h3>Bike Terrain</h3>
-            <button onClick={() => handleSelection('bikeTerrain', 'Flat')} style={btnStyle}>Flat and Fast (Aero rewarded)</button>
-            <button onClick={() => handleSelection('bikeTerrain', 'Rolling')} style={btnStyle}>Gently Rolling (Mix of Aero and Hoods)</button>
-            <button onClick={() => handleSelection('bikeTerrain', 'Hilly')} style={btnStyle}>Hilly (Climbing Specialist)</button>
-            <button onClick={() => setStep(step - 1)} style={backBtnStyle}>Back</button>
+            <h3>Run Terrain Preference</h3>
+            <button onClick={() => handleSelection('runTerrain', 'Flat')} style={btnStyle}>Flat and Fast</button>
+            <button onClick={() => handleSelection('runTerrain', 'Rolling')} style={btnStyle}>Rolling Hills</button>
+            <button onClick={() => handleSelection('runTerrain', 'Hilly')} style={btnStyle}>Hilly / Brutal</button>
+            <button onClick={() => setStep(4)} style={backBtnStyle}>Back</button>
           </div>
         )}
 
         {step === 6 && (
           <div>
-            <h3>Run Terrain</h3>
-            <button onClick={() => handleSelection('runTerrain', 'Flat')} style={btnStyle}>Flat and Fast</button>
-            <button onClick={() => handleSelection('runTerrain', 'Rolling')} style={btnStyle}>Rolling Hills</button>
-            <button onClick={() => handleSelection('runTerrain', 'Hilly')} style={btnStyle}>Hilly / Brutal (Strength focus)</button>
-            <button onClick={() => setStep(step - 1)} style={backBtnStyle}>Back</button>
+            <h3>Climate</h3>
+            <button onClick={() => handleSelection('climate', 'Heat/Humidity')} style={btnStyle}>Heat/Humidity</button>
+            <button onClick={() => handleSelection('climate', 'Cold/Moderate')} style={btnStyle}>Cold/Moderate</button>
+            <button onClick={() => setStep(5)} style={backBtnStyle}>Back</button>
           </div>
         )}
 
         {step === 7 && (
-          <div>
-            <h3>Climate</h3>
-            <button onClick={() => handleSelection('climate', 'Heat/Humidity')} style={btnStyle}>I thrive in Heat/Humidity</button>
-            <button onClick={() => handleSelection('climate', 'Cold/Moderate')} style={btnStyle}>I prefer Cold/Moderate</button>
-            <button onClick={() => setStep(step - 1)} style={backBtnStyle}>Back</button>
-          </div>
-        )}
-
-        {step === 8 && (
           <div style={{ textAlign: 'left' }}>
-            <h3 style={{ textAlign: 'center', color: '#D62027' }}>Your Best 2026 Matches</h3>
+            <h3 style={{ textAlign: 'center', color: '#D62027' }}>Your Personalized 2026 Matches</h3>
             {getRankedRaces().map((race, index) => (
               <div key={race.name} style={{ backgroundColor: 'white', color: '#231F20', padding: '15px', borderRadius: '12px', marginBottom: '10px' }}>
                 <div style={{ fontWeight: '900' }}>#{index + 1}: {race.name}</div>
                 <div style={{ fontSize: '0.8rem' }}>Swim: {race.wetsuit} | Bike: {race.bike} | Run: {race.run}</div>
               </div>
             ))}
-            <button onClick={() => { setStep(1); setSelections({distance: '', goal: '', swimStrength: '', bikeTerrain: '', runTerrain: '', climate: ''}); }} style={btnStyle}>Start Over</button>
+            <button onClick={() => setStep(1)} style={btnStyle}>Start Over</button>
           </div>
         )}
       </div>

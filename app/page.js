@@ -24,7 +24,6 @@ export default function IronmanRaceSelector() {
     { name: "IRONMAN Lake Placid", distance: "140.6", wetsuit: "Probable", bike: "Hilly", run: "Hilly", climate: "Moderate", tags: ["Climber", "WC"] },
     { name: "IRONMAN Wisconsin", distance: "140.6", wetsuit: "Probable", bike: "Hilly", run: "Hilly", climate: "Moderate", tags: ["Climber", "Redemption"] },
     { name: "IRONMAN Texas", distance: "140.6", wetsuit: "Doubtful", bike: "Flat", run: "Flat", climate: "Heat/Humidity", tags: ["Power", "PR"] },
-    { name: "IRONMAN Canada (Ottawa)", distance: "140.6", wetsuit: "Probable", bike: "Rolling", run: "Flat", climate: "Moderate", tags: ["First-Timer", "WC"] },
 
     // HALF DISTANCE (70.3)
     { name: "70.3 Oregon", distance: "70.3", wetsuit: "Probable", bike: "Rolling", run: "Flat", climate: "Moderate", tags: ["Downriver", "Weak-Swim", "PR", "First-Timer"] },
@@ -35,7 +34,7 @@ export default function IronmanRaceSelector() {
     { name: "70.3 St. George", distance: "70.3", wetsuit: "Probable", bike: "Hilly", run: "Hilly", climate: "Moderate", tags: ["Climber", "WC"] },
     { name: "70.3 Mont-Tremblant", distance: "70.3", wetsuit: "Probable", bike: "Hilly", run: "Rolling", climate: "Moderate", tags: ["Climber", "WC"] },
     { name: "70.3 Oceanside", distance: "70.3", wetsuit: "Probable", bike: "Hilly", run: "Flat", climate: "Moderate", tags: ["Climber"] },
-    { name: "70.3 Eagleman", distance: "70.3", wetsuit: "Maybe", bike: "Flat", run: "Flat", climate: "Heat/Humidity", tags: ["PR", "Power"] },
+    { name: "70.3 Eagleman", distance: "70.3", wetsuit: "Maybe", bike: "Flat", run: "Flat", climate: "Heat/Humidity", tags: ["PR", "Power", "WC"] },
     { name: "70.3 Gulf Coast", distance: "70.3", wetsuit: "Maybe", bike: "Flat", run: "Flat", climate: "Heat/Humidity", tags: ["PR", "Power"] }
   ];
 
@@ -58,7 +57,7 @@ export default function IronmanRaceSelector() {
       const calcScore = (race) => {
         let s = 0;
 
-        // SWIM SCORING (BASED ON YOUR EXACT POINT MATRIX)
+        // SWIM SCORING (STRICT POINT MATRIX)
         const isDownriver = race.tags.includes("Downriver");
         if (selections.swimStrength === 'Weak') {
           if (race.wetsuit === "Probable" && isDownriver) s += 20;
@@ -67,24 +66,23 @@ export default function IronmanRaceSelector() {
           else if (race.wetsuit === "Maybe" && !isDownriver) s += 0;
           else if (race.wetsuit === "Doubtful" && isDownriver) s -= 5;
           else if (race.wetsuit === "Doubtful" && !isDownriver) s -= 50;
-        } else if (selections.swimStrength === 'Strong') {
-          if (race.wetsuit === "Doubtful") s += 20;
-          if (isDownriver) s -= 15;
         }
 
-        // BIKE SCORING
-        if (selections.bikeTerrain === race.bike) s += 20;
-        else if (selections.bikeTerrain === 'Hilly' && race.bike === 'Flat') s -= 30;
-        else if (selections.bikeTerrain === 'Flat' && race.bike === 'Hilly') s -= 40;
+        // BIKE TERRAIN (SOFTENED PENALTIES FOR ROLLING)
+        if (selections.bikeTerrain === race.bike) s += 20; // Exact Match
+        else if (selections.bikeTerrain === 'Flat' && race.bike === 'Rolling') s -= 5; // Low penalty for slight mismatch
+        else if (selections.bikeTerrain === 'Flat' && race.bike === 'Hilly') s -= 40; // High penalty for extreme mismatch
+        else if (selections.bikeTerrain === 'Rolling' && (race.bike === 'Flat' || race.bike === 'Hilly')) s += 5; // Rolling athletes handle both well
 
-        // RUN SCORING
+        // RUN TERRAIN (SOFTENED PENALTIES FOR ROLLING)
         if (selections.runTerrain === race.run) s += 25;
+        else if (selections.runTerrain === 'Flat' && race.run === 'Rolling') s -= 5;
         else if (selections.runTerrain === 'Flat' && race.run === 'Hilly') s -= 45;
 
         // CLIMATE & GOAL
         if (selections.climate === 'Heat/Humidity' && race.climate.includes('Heat')) s += 15;
         if (selections.climate === 'Cold/Moderate' && race.climate.includes('Moderate')) s += 15;
-        if (race.tags.includes(selections.goal)) s += 10;
+        if (race.tags.includes(selections.goal)) s += 15; // Increased weight for WC/Goal profile
 
         return s;
       };
@@ -179,7 +177,7 @@ export default function IronmanRaceSelector() {
                 <div style={{ fontSize: '0.8rem' }}>Swim: {race.wetsuit} | Bike: {race.bike} | Run: {race.run}</div>
               </div>
             ))}
-            <button onClick={() => setStep(1)} style={btnStyle}>Start Over</button>
+            <button onClick={() => { setStep(1); setSelections({distance: '', goal: '', swimStrength: '', bikeTerrain: '', runTerrain: '', climate: ''}); }} style={btnStyle}>Start Over</button>
           </div>
         )}
       </div>

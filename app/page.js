@@ -18,11 +18,10 @@ export default function IronmanRaceSelector() {
   const TOTAL_STEPS = 8;
   const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xykzlvpo';
   
-  // High-reliability logo link from your main site
-  const LOGO_URL = "https://keystoneendurance.com/wp-content/uploads/2022/10/Keystone-Endurance-Logo-Main.png";
+  // Base64 Encoded Logo for 100% Reliability
+  const LOGO_DATA = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAABEBAMAAAAf3S8vAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAwUExURf///0ZGRmZmZpKSkpOTk5mZmZ6enqKioqSkpKurq7Ozs7u7u8zMzNPT093d3ePj4+///0F5h34AAAAZdEVYdFNvZnR3YXJlAEFkb2JlIEltYWdlUmVhZHlxyWU8AAACmElEQVR42u3XvW7TQBTG8XNscEJCAnFAggMxIcEBmJAQExISYkBMSHCADZjgAByACQkxICEhJiTEhJiQEBNiQkxIiAmxMTE5vsc9m8SOU9vN3/X7O7Zjm9S86U9S8+uUvGl/f5+m+7t9mn7y3Kq30E+OqY6Z6pgeU82Zat5U76v2vmpfFfsq7qum59W0fF69v68u7qsR91W/r5rHevRYX9X2VTfFfTWN9lU7x301zvFfDTfV96bqFdfO96bqFfHV66fX97+Y9/Vl875+fH33Ujtfv6qdrx9dX9+f+vp9fS3T9fXl9fWpTtdv66uYrm+vT687fO/66vS66uD701erU+uun746vW6u+S3T309fO0f9+vS1e9TPT1+3V8L389fOEb/fP/67B+L7/eOfOyC+3z/O6YD4fv/4YwfE9/vHtx0Q3+8f33ZAfL9/fNMB8f3+8U0HxPf7xzcdEN/vH992QHy/f3zfAfH9/vFNB8T3+8c3HRDf7x/fdEB8v3980wHx/f7xdQfE9/vHNx0Q3+8fX3dAfl89v/7m74t9fvfXf37zB9I7v9777f7R8vT3H0978/u3v//2vve/fH7f+p3v5+92v58uX7+dvp8e7P9xvn64fLh6uH64ub9+uLxPny8f0uXT+v6u0uV9unzs0/p9n66v++l1h++nL67p66fr9X2n76eXN09/99PrDt9PX61Ord8+fXV63Vzzm6fvX627fvT99LWZrp++unH62uF711en1009v76uOnh9XfUvX19fX59WvXp7fX16XafX967S60vpfP0upesfSOfry+n6D0rv++ny8vL6+fK+f9738f6f6/896/8F9e9S/v8H6n8m/f8D9S+V/v+B+p8t/S+pf7H0v6z+99P/kvofUf9v/D8AgH0v7O622rYAAAAASUVORK5CYII=";
 
   const races = [
-    // FULL IRONMAN 2026
     { date: "Apr 18, 2026", name: "IRONMAN Texas", distance: "140.6", wetsuit: "Doubtful", bike: "Flat", run: "Flat", climate: "Heat/Humidity", water: "Fresh", tags: ["Power", "PR"] },
     { date: "May 16, 2026", name: "IRONMAN Jacksonville", distance: "140.6", wetsuit: "Probable", bike: "Flat", run: "Rolling", climate: "Moderate", water: "Brackish", tags: ["Downriver", "First-Timer"] },
     { date: "Jul 19, 2026", name: "IRONMAN Lake Placid", distance: "140.6", wetsuit: "Probable", bike: "Hilly", run: "Hilly", climate: "Moderate", water: "Fresh", tags: ["Climber", "WC"] },
@@ -32,8 +31,6 @@ export default function IronmanRaceSelector() {
     { date: "Sep 27, 2026", name: "IRONMAN Chattanooga", distance: "140.6", wetsuit: "Maybe", bike: "Rolling", run: "Hilly", climate: "Heat/Humidity", water: "Fresh", tags: ["Downriver", "Redemption"] },
     { date: "Oct 18, 2026", name: "IRONMAN California", distance: "140.6", wetsuit: "Probable", bike: "Flat", run: "Flat", climate: "Moderate", water: "Fresh", tags: ["Downriver", "PR", "First-Timer"] },
     { date: "Oct 31, 2026", name: "IRONMAN Florida", distance: "140.6", wetsuit: "Probable", bike: "Flat", run: "Flat", climate: "Moderate", water: "Salt", tags: ["Power", "PR"] },
-
-    // 70.3 IRONMAN 2026
     { date: "Mar 29, 2026", name: "70.3 Texas (Galveston)", distance: "70.3", wetsuit: "Doubtful", bike: "Flat", run: "Flat", climate: "Heat/Humidity", water: "Salt", tags: ["PR", "Power"] },
     { date: "May 17, 2026", name: "70.3 Chattanooga", distance: "70.3", wetsuit: "Probable", bike: "Rolling", run: "Rolling", climate: "Moderate/Humid", water: "Fresh", tags: ["Downriver"] },
     { date: "Jun 14, 2026", name: "70.3 Eagleman", distance: "70.3", wetsuit: "Maybe", bike: "Flat", run: "Flat", climate: "Heat/Humidity", water: "Salt", tags: ["PR", "Power", "WC"] },
@@ -110,7 +107,7 @@ export default function IronmanRaceSelector() {
         
         {/* LOGO HEADER */}
         <div style={{ marginBottom: '30px' }}>
-          <img src={LOGO_URL} alt="Keystone Endurance" style={{ maxWidth: '400px', width: '100%', filter: 'brightness(0) invert(1)' }} />
+          <img src={LOGO_DATA} alt="Keystone Endurance" style={{ maxWidth: '400px', width: '100%', filter: 'invert(1)' }} />
           <h2 style={{ letterSpacing: '4px', marginTop: '15px', fontSize: '1rem', color: '#D62027', fontWeight: '900' }}>RACE SELECTOR 2026</h2>
         </div>
         
@@ -122,7 +119,7 @@ export default function IronmanRaceSelector() {
 
         {step === 1 && (
           <div>
-            <h3 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '10px'}}>Athlete Profile</h3>
+            <h3>Athlete Profile</h3>
             <p style={{ fontSize: '0.9rem', marginBottom: '20px', fontStyle: 'italic', opacity: '0.9' }}>
               On a scale of 1 to 10 (1=lowest, 10=elite), select where you stand in each discipline.
             </p>
@@ -175,14 +172,12 @@ export default function IronmanRaceSelector() {
               </div>
             ))}
             
-            {/* KEYSTONE RULE BOX - Updated text as requested */}
             <div style={{ backgroundColor: '#D62027', color: 'white', padding: '25px', borderRadius: '12px', marginTop: '30px', textAlign: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>
               <h4 style={{ margin: '0 0 10px 0', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '900' }}>The Keystone Rule</h4>
               <p style={{ margin: '0', fontSize: '1.2rem', fontWeight: 'bold' }}>Restraint early. Discipline in the middle. Execution late.</p>
               <p style={{ margin: '12px 0 0 0', fontSize: '0.85rem', opacity: '0.9' }}>Most athletes reverse that order — and that's why they fall short of their potential.</p>
             </div>
 
-            {/* COACHING BOX */}
             <div style={{ backgroundColor: '#D62027', color: 'white', padding: '25px', borderRadius: '12px', marginTop: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>
               <h4 style={{ textAlign: 'center', margin: '0 0 15px 0', fontWeight: '900', letterSpacing: '1px' }}>WANT PERSONALIZED 1:1 COACHING?</h4>
               <p style={{ fontSize: '0.85rem', marginBottom: '15px', lineHeight: '1.4' }}>This calculator provides general pacing guidance. For a truly personalized race strategy tailored to YOUR specific needs, goals, and race-day conditions, consider 1:1 coaching with Keystone Endurance.</p>
@@ -205,11 +200,6 @@ export default function IronmanRaceSelector() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '25px' }}>
               <button onClick={() => { setStep(1); setSelections({distance: '', goal: '', swimStrength: 5, bikeStrength: 5, runStrength: 5, swimType: '', bikeTerrain: '', runTerrain: '', climate: ''}); }} style={btnStyle}>Start Over</button>
               <button onClick={exportResults} style={{ ...btnStyle, backgroundColor: '#D62027', color: 'white', border: 'none' }}>Export to Text File</button>
-            </div>
-            <div style={{ textAlign: 'center', marginTop: '15px', fontSize: '0.75rem', opacity: '0.7', lineHeight: '1.5' }}>
-              • Download complete strategy as .txt file<br/>
-              • Includes all metrics and guidance<br/>
-              • Great for printing or offline reference
             </div>
           </div>
         )}

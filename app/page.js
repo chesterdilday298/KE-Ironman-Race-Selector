@@ -1,13 +1,15 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export default function IronmanRaceSelector() {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [selections, setSelections] = useState({
     distance: '', goal: '', swimStrength: 5, bikeStrength: 5, runStrength: 5,
     swimType: '', bikeTerrain: '', runTerrain: '', climate: ''
@@ -44,17 +46,20 @@ export default function IronmanRaceSelector() {
   ];
 
   const handleSelection = (field, value) => {
-    const updated = { ...selections, [field]: value };
-    setSelections(updated);
-    if (field === 'climate') {
+    setSelections({ ...selections, [field]: value });
+    setStep(step + 1);
+  };
+
+  // Trigger Formspree only once at the final results step
+  useEffect(() => {
+    if (step === 8) {
       fetch(FORMSPREE_ENDPOINT, {
         method: 'POST',
-        body: JSON.stringify({ email, ...updated }),
+        body: JSON.stringify({ firstName, lastName, email, ...selections }),
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
       });
     }
-    setStep(step + 1);
-  };
+  }, [step]);
 
   const getRankedRaces = () => {
     let filtered = races.filter(r => r.distance === selections.distance);
@@ -96,7 +101,7 @@ export default function IronmanRaceSelector() {
 
   const exportResults = () => {
     const data = getRankedRaces().map((r, i) => `#${i+1}: ${r.name}\n- Date: ${r.date}\n- Swim: ${r.water} (Wetsuit ${r.wetsuit})\n- Bike: ${r.bike}\n- Run: ${r.run}`).join('\n\n');
-    const blob = new Blob([`2026 RANKED RACE REPORT FOR: ${email}\n\n${data}`], { type: 'text/plain' });
+    const blob = new Blob([`2026 RANKED RACE REPORT FOR: ${firstName} ${lastName}\n\n${data}`], { type: 'text/plain' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `My_Ironman_2026_Selections.txt`;
@@ -123,8 +128,12 @@ export default function IronmanRaceSelector() {
     <div style={{ minHeight: '100vh', backgroundColor: '#231F20', color: 'white', fontFamily: 'Inter, sans-serif', padding: '40px 20px' }}>
       <Analytics /><SpeedInsights />
       <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
-        <h1 style={{ color: '#D62027', fontSize: '2.5rem', fontWeight: '900', marginBottom: '5px' }}>IRONMAN</h1>
-        <h2 style={{ letterSpacing: '4px', marginBottom: '20px', fontSize: '0.9rem' }}>RACE SELECTOR 2026</h2>
+        
+        {/* LOGO HEADER */}
+        <div style={{ marginBottom: '40px' }}>
+          <img src="https://keystoneendurance.com/wp-content/uploads/2023/04/Keystone-Endurance-Logo-Main.png" alt="Keystone Endurance" style={{ maxWidth: '300px', width: '100%' }} />
+          <h2 style={{ letterSpacing: '4px', marginTop: '15px', fontSize: '0.9rem', color: '#D62027', fontWeight: '900' }}>RACE SELECTOR 2026</h2>
+        </div>
         
         {step < TOTAL_STEPS && <ProgressBar />}
 
@@ -134,6 +143,10 @@ export default function IronmanRaceSelector() {
             <p style={{ fontSize: '0.85rem', marginBottom: '20px', fontStyle: 'italic', opacity: '0.9' }}>
               On a scale of 1 to 10 (1 being lowest/weakest and 10 being elite), select where you feel you currently stand in each of the three triathlon disciplines.
             </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+              <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First Name" style={{ width: '100%', padding: '15px', borderRadius: '8px', color: 'black' }} />
+              <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last Name" style={{ width: '100%', padding: '15px', borderRadius: '8px', color: 'black' }} />
+            </div>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter Email" style={{ width: '100%', padding: '15px', borderRadius: '8px', marginBottom: '20px', color: 'black' }} />
             <RenderSlider label="Swim Strength" value={selections.swimStrength} field="swimStrength" />
             <RenderSlider label="Bike Strength" value={selections.bikeStrength} field="bikeStrength" />
@@ -210,12 +223,14 @@ export default function IronmanRaceSelector() {
               </div>
             ))}
             
+            {/* THE KEYSTONE RULE */}
             <div style={{ backgroundColor: '#D62027', color: 'white', padding: '20px', borderRadius: '12px', marginTop: '30px', textAlign: 'center' }}>
               <h4 style={{ margin: '0 0 10px 0', textTransform: 'uppercase' }}>The Keystone Rule</h4>
               <p style={{ margin: '0', fontSize: '1.1rem', fontWeight: 'bold' }}>Restraint early. Discipline in the middle. Execution late.</p>
               <p style={{ margin: '10px 0 0 0', fontSize: '0.8rem', opacity: '0.9' }}>Most athletes reverse that order — and that's why they fall short of their potential.</p>
             </div>
 
+            {/* COACHING CALL TO ACTION */}
             <div style={{ backgroundColor: '#D62027', color: 'white', padding: '20px', borderRadius: '12px', marginTop: '20px' }}>
               <h4 style={{ textAlign: 'center', margin: '0 0 15px 0' }}>WANT PERSONALIZED 1:1 COACHING?</h4>
               <p style={{ fontSize: '0.8rem', marginBottom: '15px' }}>This tool provides general guidance. For a truly personalized race strategy tailored to YOUR specific needs, goals, and race-day conditions, consider 1:1 coaching with Keystone Endurance.</p>
@@ -226,7 +241,7 @@ export default function IronmanRaceSelector() {
                 <li>Access to metabolic assessments and video form analysis</li>
               </ul>
               <a 
-                href={`mailto:coach@keystoneendurance.com?subject=Request for Coaching Review - 2026 Race Selector&body=Athlete Email: ${email}`}
+                href={`mailto:coach@keystoneendurance.com?subject=Request for Coaching Review - 2026 Race Selector&body=Athlete Name: ${firstName} ${lastName}%0AAthlete Email: ${email}`}
                 style={{ ...btnStyle, backgroundColor: 'white', color: '#D62027', marginTop: '15px' }}
               >
                 Click here to email Coach Chet to review

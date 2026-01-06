@@ -97,17 +97,18 @@ export default function IronmanRaceSelector() {
   };
 
   const btnStyle = { display: 'block', width: '100%', padding: '15px', margin: '10px 0', backgroundColor: 'white', color: '#231F20', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', textAlign: 'center', fontSize: '16px' };
+  const backBtnStyle = { ...btnStyle, backgroundColor: 'transparent', color: 'white', border: '1px solid white' };
   const inputStyle = { padding: '15px', borderRadius: '8px', color: 'black', border: 'none', width: '100%', fontSize: '16px' };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#231F20', color: 'white', fontFamily: 'Inter, sans-serif', padding: '10px 20px' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#231F20', color: 'white', fontFamily: 'Inter, sans-serif', padding: '0 20px' }}>
       <Analytics /><SpeedInsights />
       <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
         
-        {/* LOGO HEADER - Tightened Spacing */}
-        <div style={{ marginBottom: '5px', marginTop: '5px' }}>
-          <img src={LOGO_PATH} alt="Keystone Endurance" style={{ maxWidth: '100%', width: '380px', height: 'auto' }} />
-          <h2 style={{ letterSpacing: '4px', marginTop: '0px', fontSize: '0.9rem', color: '#D62027', fontWeight: '900' }}>RACE SELECTOR 2026</h2>
+        {/* LOGO HEADER - NO MARGINS/PADDING */}
+        <div style={{ padding: '0px', marginTop: '0px', marginBottom: '10px' }}>
+          <img src={LOGO_PATH} alt="Keystone Endurance" style={{ maxWidth: '100%', width: '380px', height: 'auto', display: 'inline-block' }} />
+          <h2 style={{ letterSpacing: '4px', marginTop: '-5px', fontSize: '0.9rem', color: '#D62027', fontWeight: '900' }}>RACE SELECTOR 2026</h2>
         </div>
         
         {step < TOTAL_STEPS && (
@@ -156,12 +157,13 @@ export default function IronmanRaceSelector() {
                   <button onClick={() => handleSelection('climate', 'Cold/Moderate')} style={btnStyle}>Cold/Moderate</button>
                 </>
               )}
+              <button onClick={() => setStep(step - 1)} style={backBtnStyle}>Back</button>
             </div>
         )}
 
         {step === 8 && (
           <div style={{ textAlign: 'left', padding: '0 10px' }}>
-            <h2 style={{ color: '#D62027', textAlign: 'center', marginBottom: '15px', fontSize: '1.6rem', fontWeight: 'bold' }}>Your Ranked 2026 Races</h2>
+            <h2 style={{ color: '#D62027', textAlign: 'center', marginBottom: '5px', fontSize: '1.6rem', fontWeight: 'bold' }}>Your Ranked 2026 Races</h2>
             {getRankedRaces().map((race, index) => (
               <div key={race.name} style={{ backgroundColor: 'white', color: '#231F20', padding: '15px', borderRadius: '12px', marginBottom: '10px' }}>
                 <strong style={{fontSize: '1.05rem'}}>#{index + 1}: {race.name}</strong><br/>
@@ -169,7 +171,7 @@ export default function IronmanRaceSelector() {
               </div>
             ))}
             
-            <div style={{ backgroundColor: '#D62027', color: 'white', padding: '20px', borderRadius: '12px', marginTop: '20px', textAlign: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>
+            <div style={{ backgroundColor: '#D62027', color: 'white', padding: '20px', borderRadius: '12px', marginTop: '15px', textAlign: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>
               <h4 style={{ margin: '0 0 10px 0', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '900' }}>The Keystone Rule</h4>
               <p style={{ margin: '0', fontSize: '1.1rem', fontWeight: 'bold' }}>Restraint early. Discipline in the middle. Execution late.</p>
               <p style={{ margin: '10px 0 0 0', fontSize: '0.8rem', opacity: '0.9' }}>Most athletes reverse that order — and that's why they fall short of their potential.</p>
@@ -191,7 +193,7 @@ export default function IronmanRaceSelector() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '15px' }}>
               <button onClick={() => { setStep(1); setSelections({distance: '', goal: '', swimStrength: 5, bikeStrength: 5, runStrength: 5, swimType: '', bikeTerrain: '', runTerrain: '', climate: ''}); }} style={btnStyle}>Start Over</button>
               <button onClick={exportResults} style={{ ...btnStyle, backgroundColor: '#D62027', color: 'white' }}>Export to Text File</button>
             </div>

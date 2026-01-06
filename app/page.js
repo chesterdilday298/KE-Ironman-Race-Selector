@@ -17,7 +17,9 @@ export default function IronmanRaceSelector() {
 
   const TOTAL_STEPS = 8;
   const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xykzlvpo';
-  const LOGO_URL = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Zoom%20Background%20Rev3-P4kAn6yBfSsh9sI3X7E9M0P3D9u6Yv.png";
+  
+  // High-reliability logo link from your main site
+  const LOGO_URL = "https://keystoneendurance.com/wp-content/uploads/2022/10/Keystone-Endurance-Logo-Main.png";
 
   const races = [
     // FULL IRONMAN 2026
@@ -95,11 +97,11 @@ export default function IronmanRaceSelector() {
     const blob = new Blob([`2026 Ranked Race Report for ${firstName} ${lastName}\n\n${data}`], { type: 'text/plain' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `Keystone_2026_Selections.txt`;
+    link.download = `Keystone_2026_Selection.txt`;
     link.click();
   };
 
-  const btnStyle = { display: 'block', width: '100%', padding: '15px', margin: '10px 0', backgroundColor: 'white', color: '#231F20', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', textAlign: 'center', textDecoration: 'none' };
+  const btnStyle = { display: 'block', width: '100%', padding: '15px', margin: '10px 0', backgroundColor: 'white', color: '#231F20', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', textAlign: 'center' };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#231F20', color: 'white', fontFamily: 'Inter, sans-serif', padding: '40px 20px' }}>
@@ -108,8 +110,8 @@ export default function IronmanRaceSelector() {
         
         {/* LOGO HEADER */}
         <div style={{ marginBottom: '30px' }}>
-          <img src={LOGO_URL} alt="Keystone Endurance" style={{ maxWidth: '400px', width: '100%' }} />
-          <h2 style={{ letterSpacing: '4px', marginTop: '15px', fontSize: '0.9rem', color: '#D62027', fontWeight: '900' }}>RACE SELECTOR 2026</h2>
+          <img src={LOGO_URL} alt="Keystone Endurance" style={{ maxWidth: '400px', width: '100%', filter: 'brightness(0) invert(1)' }} />
+          <h2 style={{ letterSpacing: '4px', marginTop: '15px', fontSize: '1rem', color: '#D62027', fontWeight: '900' }}>RACE SELECTOR 2026</h2>
         </div>
         
         {step < TOTAL_STEPS && (
@@ -120,110 +122,91 @@ export default function IronmanRaceSelector() {
 
         {step === 1 && (
           <div>
-            <h3>Athlete Profile</h3>
-            <p style={{ fontSize: '0.85rem', marginBottom: '20px', fontStyle: 'italic', opacity: '0.9' }}>
+            <h3 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '10px'}}>Athlete Profile</h3>
+            <p style={{ fontSize: '0.9rem', marginBottom: '20px', fontStyle: 'italic', opacity: '0.9' }}>
               On a scale of 1 to 10 (1=lowest, 10=elite), select where you stand in each discipline.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
-              <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First" style={{ padding: '15px', borderRadius: '8px', color: 'black' }} />
-              <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last" style={{ padding: '15px', borderRadius: '8px', color: 'black' }} />
+              <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First" style={{ padding: '15px', borderRadius: '8px', color: 'black', border: 'none' }} />
+              <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last" style={{ padding: '15px', borderRadius: '8px', color: 'black', border: 'none' }} />
             </div>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" style={{ width: '100%', padding: '15px', borderRadius: '8px', marginBottom: '20px', color: 'black' }} />
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" style={{ width: '100%', padding: '15px', borderRadius: '8px', marginBottom: '20px', color: 'black', border: 'none' }} />
             {['swimStrength', 'bikeStrength', 'runStrength'].map(field => (
-              <div key={field} style={{ marginBottom: '20px', textAlign: 'left' }}>
-                <label style={{ fontWeight: '700' }}>{field.replace('Strength', ' ')} Strength: {selections[field]}/10</label>
-                <input type="range" min="1" max="10" value={selections[field]} onChange={(e) => setSelections({...selections, [field]: parseInt(e.target.value)})} style={{ width: '100%', accentColor: '#D62027' }} />
+              <div key={field} style={{ marginBottom: '25px', textAlign: 'left' }}>
+                <label style={{ fontWeight: '700', fontSize: '1rem' }}>{field.replace('Strength', ' ')} Strength: {selections[field]}/10</label>
+                <input type="range" min="1" max="10" value={selections[field]} onChange={(e) => setSelections({...selections, [field]: parseInt(e.target.value)})} style={{ width: '100%', accentColor: '#D62027', marginTop: '10px' }} />
               </div>
             ))}
             <button onClick={() => setStep(2)} style={btnStyle}>Next</button>
           </div>
         )}
 
-        {step === 2 && (
-          <div>
-            <h3>Distance Selection</h3>
-            {['70.3', '140.6'].map(d => <button key={d} onClick={() => handleSelection('distance', d)} style={btnStyle}>{d === '70.3' ? '70.3 (Half)' : '140.6 (Full)'}</button>)}
-          </div>
-        )}
-
-        {step === 3 && (
-          <div>
-            <h3>Swim Type</h3>
-            {['Weak', 'Intermediate', 'Strong'].map(t => <button key={t} onClick={() => handleSelection('swimType', t)} style={btnStyle}>{t}</button>)}
-          </div>
-        )}
-
-        {step === 4 && (
-          <div>
-            <h3>Primary Goal</h3>
-            {['First-Timer', 'Step-Up', 'Redemption', 'PR', 'WC'].map(g => <button key={g} onClick={() => handleSelection('goal', g)} style={btnStyle}>{g}</button>)}
-          </div>
-        )}
-
-        {step === 5 && (
-          <div>
-            <h3>Bike Terrain</h3>
-            {['Flat', 'Rolling', 'Hilly'].map(t => <button key={t} onClick={() => handleSelection('bikeTerrain', t)} style={btnStyle}>{t}</button>)}
-          </div>
-        )}
-
-        {step === 6 && (
-          <div>
-            <h3>Run Terrain</h3>
-            {['Flat', 'Rolling', 'Hilly'].map(t => <button key={t} onClick={() => handleSelection('runTerrain', t)} style={btnStyle}>{t}</button>)}
-          </div>
-        )}
-
-        {step === 7 && (
-          <div>
-            <h3>Climate</h3>
-            <button onClick={() => handleSelection('climate', 'Heat/Humidity')} style={btnStyle}>Heat/Humidity</button>
-            <button onClick={() => handleSelection('climate', 'Cold/Moderate')} style={btnStyle}>Cold/Moderate</button>
-          </div>
+        {step > 1 && step < 8 && (
+            <div>
+              <h3 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '25px'}}>
+                {step === 2 && "Distance Selection"}
+                {step === 3 && "Swim Type"}
+                {step === 4 && "Primary Goal"}
+                {step === 5 && "Bike Terrain Preference"}
+                {step === 6 && "Run Terrain Preference"}
+                {step === 7 && "Climate Preference"}
+              </h3>
+              {step === 2 && ['70.3', '140.6'].map(d => <button key={d} onClick={() => handleSelection('distance', d)} style={btnStyle}>{d === '70.3' ? '70.3 (Half)' : '140.6 (Full)'}</button>)}
+              {step === 3 && ['Weak', 'Intermediate', 'Strong'].map(t => <button key={t} onClick={() => handleSelection('swimType', t)} style={btnStyle}>{t}</button>)}
+              {step === 4 && ['First-Timer', 'Step-Up', 'Redemption', 'PR', 'WC'].map(g => <button key={g} onClick={() => handleSelection('goal', g)} style={btnStyle}>{g}</button>)}
+              {step === 5 && ['Flat', 'Rolling', 'Hilly'].map(t => <button key={t} onClick={() => handleSelection('bikeTerrain', t)} style={btnStyle}>{t}</button>)}
+              {step === 6 && ['Flat', 'Rolling', 'Hilly'].map(t => <button key={t} onClick={() => handleSelection('runTerrain', t)} style={btnStyle}>{t}</button>)}
+              {step === 7 && (
+                <>
+                  <button onClick={() => handleSelection('climate', 'Heat/Humidity')} style={btnStyle}>Heat/Humidity</button>
+                  <button onClick={() => handleSelection('climate', 'Cold/Moderate')} style={btnStyle}>Cold/Moderate</button>
+                </>
+              )}
+            </div>
         )}
 
         {step === 8 && (
           <div style={{ textAlign: 'left' }}>
-            <h2 style={{ color: '#D62027', textAlign: 'center', marginBottom: '20px' }}>Your Ranked 2026 Races</h2>
+            <h2 style={{ color: '#D62027', textAlign: 'center', marginBottom: '20px', fontSize: '1.8rem', fontWeight: 'bold' }}>Your Ranked 2026 Races</h2>
             {getRankedRaces().map((race, index) => (
               <div key={race.name} style={{ backgroundColor: 'white', color: '#231F20', padding: '15px', borderRadius: '12px', marginBottom: '10px' }}>
-                <strong>#{index + 1}: {race.name}</strong><br/>
-                <small>{race.date} | Swim: {race.water} (Wetsuit {race.wetsuit}) | Bike: {race.bike} | Run: {race.run}</small>
+                <strong style={{fontSize: '1.1rem'}}>#{index + 1}: {race.name}</strong><br/>
+                <small style={{fontSize: '0.85rem'}}>{race.date} | Swim: {race.water} (Wetsuit {race.wetsuit}) | Bike: {race.bike} | Run: {race.run}</small>
               </div>
             ))}
             
-            {/* KEYSTONE RULE BOX */}
-            <div style={{ backgroundColor: '#D62027', color: 'white', padding: '20px', borderRadius: '12px', marginTop: '30px', textAlign: 'center' }}>
-              <h4 style={{ margin: '0 0 10px 0', textTransform: 'uppercase' }}>The Keystone Rule</h4>
-              <p style={{ margin: '0', fontSize: '1.1rem', fontWeight: 'bold' }}>Restraint early. Discipline in the middle. Execution late.</p>
-              <p style={{ margin: '10px 0 0 0', fontSize: '0.8rem', opacity: '0.9' }}>Most athletes reverse that order — and that's why they fall short of their potential.</p>
+            {/* KEYSTONE RULE BOX - Updated text as requested */}
+            <div style={{ backgroundColor: '#D62027', color: 'white', padding: '25px', borderRadius: '12px', marginTop: '30px', textAlign: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>
+              <h4 style={{ margin: '0 0 10px 0', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '900' }}>The Keystone Rule</h4>
+              <p style={{ margin: '0', fontSize: '1.2rem', fontWeight: 'bold' }}>Restraint early. Discipline in the middle. Execution late.</p>
+              <p style={{ margin: '12px 0 0 0', fontSize: '0.85rem', opacity: '0.9' }}>Most athletes reverse that order — and that's why they fall short of their potential.</p>
             </div>
 
             {/* COACHING BOX */}
-            <div style={{ backgroundColor: '#D62027', color: 'white', padding: '20px', borderRadius: '12px', marginTop: '20px' }}>
-              <h4 style={{ textAlign: 'center', margin: '0 0 15px 0' }}>WANT PERSONALIZED 1:1 COACHING?</h4>
-              <p style={{ fontSize: '0.8rem', marginBottom: '15px' }}>This tool provides general guidance. For a truly personalized race strategy, consider 1:1 coaching with Keystone Endurance.</p>
-              <ul style={{ fontSize: '0.8rem', paddingLeft: '20px' }}>
-                <li>Custom training plans for all disciplines</li>
-                <li>Personalized race-day execution strategies</li>
-                <li>Unlimited communication and bi-weekly calls</li>
-                <li>Metabolic assessments and video form analysis</li>
+            <div style={{ backgroundColor: '#D62027', color: 'white', padding: '25px', borderRadius: '12px', marginTop: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>
+              <h4 style={{ textAlign: 'center', margin: '0 0 15px 0', fontWeight: '900', letterSpacing: '1px' }}>WANT PERSONALIZED 1:1 COACHING?</h4>
+              <p style={{ fontSize: '0.85rem', marginBottom: '15px', lineHeight: '1.4' }}>This calculator provides general pacing guidance. For a truly personalized race strategy tailored to YOUR specific needs, goals, and race-day conditions, consider 1:1 coaching with Keystone Endurance.</p>
+              <ul style={{ fontSize: '0.85rem', paddingLeft: '20px', marginBottom: '20px' }}>
+                <li style={{marginBottom: '5px'}}>Custom training plans for swim, bike, run, and strength</li>
+                <li style={{marginBottom: '5px'}}>Personalized race-day execution strategies</li>
+                <li style={{marginBottom: '5px'}}>Unlimited communication and bi-weekly coaching calls</li>
+                <li>Access to metabolic assessments and video form analysis</li>
               </ul>
-              <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '10px', marginTop: '15px', textAlign: 'center' }}>
+              <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '15px', textAlign: 'center' }}>
                 <a 
                   href={`mailto:coach@keystoneendurance.com?subject=Coaching Review&body=Athlete Name: ${firstName} ${lastName}`}
-                  style={{ color: '#D62027', fontWeight: '900', textDecoration: 'none', fontSize: '0.8rem' }}
+                  style={{ color: '#D62027', fontWeight: '900', textDecoration: 'none', fontSize: '0.9rem' }}
                 >
                   EMAIL US:<br/>COACH@KEYSTONEENDURANCE.COM
                 </a>
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '25px' }}>
               <button onClick={() => { setStep(1); setSelections({distance: '', goal: '', swimStrength: 5, bikeStrength: 5, runStrength: 5, swimType: '', bikeTerrain: '', runTerrain: '', climate: ''}); }} style={btnStyle}>Start Over</button>
-              <button onClick={exportResults} style={{ ...btnStyle, backgroundColor: '#D62027', color: 'white' }}>Export to Text File</button>
+              <button onClick={exportResults} style={{ ...btnStyle, backgroundColor: '#D62027', color: 'white', border: 'none' }}>Export to Text File</button>
             </div>
-            <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '0.7rem', opacity: '0.7' }}>
+            <div style={{ textAlign: 'center', marginTop: '15px', fontSize: '0.75rem', opacity: '0.7', lineHeight: '1.5' }}>
               • Download complete strategy as .txt file<br/>
               • Includes all metrics and guidance<br/>
               • Great for printing or offline reference
